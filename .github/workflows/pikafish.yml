@@ -11,41 +11,42 @@ jobs:
     runs-on: ${{ matrix.config.os }}
     env:
       ARCH: x86-64${{ matrix.arch }}
-      COMPCXX: clang++
+      COMPILER: clang++
       COMP: clang
       EXE: pikafish${{ matrix.arch }}${{ matrix.config.ext }}
       SDE: ${{ matrix.config.sde }}
     strategy:
       matrix:
         config:
-          - name: Linux
-            os: ubuntu-20.04 
-            shell: bash
-            sde: /home/runner/work/Pikafish/Pikafish/.output/sde-temp-files/sde-external-9.27.0-2023-09-13-lin/sde -future --
-          - name: MacOS
-            os: macos-latest
-            shell: bash
+          # - name: Linux
+          #   os: ubuntu-20.04 
+          #   shell: bash
+          #   sde: /home/runner/work/Pikafish/Pikafish/.output/sde-temp-files/sde-external-9.27.0-2023-09-13-lin/sde -future --
+          # - name: MacOS
+          #   os: macos-latest
+          #   shell: bash
           - name: Windows
             os: windows-latest
             shell: msys2 {0}
             ext: .exe
             sde: /d/a/Pikafish/Pikafish/.output/sde-temp-files/sde-external-9.27.0-2023-09-13-win/sde.exe -future --
-        arch: ["-vnni512", "-avx512", "-avx512f", "-avxvnni", "-bmi2", "-avx2", "-sse41-popcnt", "-ssse3"]
-        exclude:
-          - arch: -avxvnni
-            config: {os: ubuntu-20.04}
-          - arch: -vnni512
-            config: {os: macos-latest}
-          - arch: -avx512f
-            config: {os: macos-latest}
-          - arch: -avx512
-            config: {os: macos-latest}
-          - arch: -avxvnni
-            config: {os: macos-latest}
-          - arch: -bmi2
-            config: {os: macos-latest}
-          - arch: -avx2
-            config: {os: macos-latest}
+        # arch: ["-vnni512", "-avx512", "-avx512f", "-avxvnni", "-bmi2", "-avx2", "-sse41-popcnt", "-ssse3"]
+        arch: ["-bmi2"]
+        # exclude:
+        #   - arch: -avxvnni
+        #     config: {os: ubuntu-20.04}
+        #   - arch: -vnni512
+        #     config: {os: macos-latest}
+        #   - arch: -avx512f
+        #     config: {os: macos-latest}
+        #   - arch: -avx512
+        #     config: {os: macos-latest}
+        #   - arch: -avxvnni
+        #     config: {os: macos-latest}
+        #   - arch: -bmi2
+        #     config: {os: macos-latest}
+        #   - arch: -avx2
+        #     config: {os: macos-latest}
     defaults:
       run:
         working-directory: src
@@ -100,99 +101,99 @@ jobs:
             README.md
             Top CPU Contributors.txt
 
-  Pikafish-MacOS-M1:
-    name: MacOS-apple-silicon
-    runs-on: macos-14
-    env:
-      ARCH: apple-silicon
-      COMPCXX: clang++
-      COMP: clang
-      EXE: pikafish-apple-silicon
-    defaults:
-      run:
-        working-directory: src
-        shell: bash
+  # Pikafish-MacOS-M1:
+  #   name: MacOS-apple-silicon
+  #   runs-on: macos-14
+  #   env:
+  #     ARCH: apple-silicon
+  #     COMPILER: clang++
+  #     COMP: clang
+  #     EXE: pikafish-apple-silicon
+  #   defaults:
+  #     run:
+  #       working-directory: src
+  #       shell: bash
 
-    steps:
-      - uses: actions/checkout@v4
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Compile apple-silicon build
-        run: |
-          make -j profile-build EXE=$EXE
-          make strip EXE=$EXE
-          cp $EXE ../
+  #     - name: Compile apple-silicon build
+  #       run: |
+  #         make -j profile-build EXE=$EXE
+  #         make strip EXE=$EXE
+  #         cp $EXE ../
 
-      - name: Download wiki
-        run: |
-          git clone https://github.com/official-pikafish/Pikafish.wiki.git ../Wiki
-          cd ../Wiki
-          rm -rf .git
+  #     - name: Download wiki
+  #       run: |
+  #         git clone https://github.com/official-pikafish/Pikafish.wiki.git ../Wiki
+  #         cd ../Wiki
+  #         rm -rf .git
 
-      # Artifacts automatically get zipped.
-      # To avoid double-zipping, we use the unzipped directory
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Pikafish-MacOS-M1-apple-silicon
-          path: |
-            ${{ env.EXE }}
-            Wiki
-            AUTHORS
-            CONTRIBUTING.md
-            Copying.txt
-            README.md
-            Top CPU Contributors.txt
+  #     # Artifacts automatically get zipped.
+  #     # To avoid double-zipping, we use the unzipped directory
+  #     - uses: actions/upload-artifact@v4
+  #       with:
+  #         name: Pikafish-MacOS-M1-apple-silicon
+  #         path: |
+  #           ${{ env.EXE }}
+  #           Wiki
+  #           AUTHORS
+  #           CONTRIBUTING.md
+  #           Copying.txt
+  #           README.md
+  #           Top CPU Contributors.txt
 
-  Pikafish-Android:
-    name: Android-${{ matrix.arch }}
-    runs-on: ubuntu-latest
-    env:
-      ARCH: ${{ matrix.arch }}
-      COMPCXX: aarch64-linux-android21-clang++
-      COMP: ndk
-      EXE: pikafish-${{ matrix.arch }}
-      LDFLAGS: "-static -Wno-unused-command-line-argument"
-    strategy:
-      matrix:
-        arch: ["armv8-dotprod", "armv8"]
-    defaults:
-      run:
-        working-directory: src
+  # Pikafish-Android:
+  #   name: Android-${{ matrix.arch }}
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     ARCH: ${{ matrix.arch }}
+  #     COMPILER: aarch64-linux-android21-clang++
+  #     COMP: ndk
+  #     EXE: pikafish-${{ matrix.arch }}
+  #     LDFLAGS: "-static -Wno-unused-command-line-argument"
+  #   strategy:
+  #     matrix:
+  #       arch: ["armv8-dotprod", "armv8"]
+  #   defaults:
+  #     run:
+  #       working-directory: src
 
-    steps:
-      - uses: actions/checkout@v4
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Download required linux packages
-        run: |
-          sudo apt update
-          sudo apt install qemu-user
+  #     - name: Download required linux packages
+  #       run: |
+  #         sudo apt update
+  #         sudo apt install qemu-user
 
-      - name: Install NDK
-        run: |
-          NDKV="21.4.7075529"
-          ANDROID_ROOT=/usr/local/lib/android
-          ANDROID_SDK_ROOT=$ANDROID_ROOT/sdk
-          SDKMANAGER=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager
-          echo "y" | $SDKMANAGER "ndk;$NDKV"
-          ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/$NDKV
-          ANDROID_NDK_BIN=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin
-          echo "ANDROID_NDK_BIN=$ANDROID_NDK_BIN" >> $GITHUB_ENV
+  #     - name: Install NDK
+  #       run: |
+  #         NDKV="21.4.7075529"
+  #         ANDROID_ROOT=/usr/local/lib/android
+  #         ANDROID_SDK_ROOT=$ANDROID_ROOT/sdk
+  #         SDKMANAGER=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager
+  #         echo "y" | $SDKMANAGER "ndk;$NDKV"
+  #         ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/$NDKV
+  #         ANDROID_NDK_BIN=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin
+  #         echo "ANDROID_NDK_BIN=$ANDROID_NDK_BIN" >> $GITHUB_ENV
 
-      - name: Compile ${{ matrix.arch }} build
-        run: |
-          export PATH=${{ env.ANDROID_NDK_BIN }}:$PATH
-          make -j profile-build EXE=$EXE WINE_PATH=$EMU
-          make strip EXE=$EXE
-          cp $EXE ../
+  #     - name: Compile ${{ matrix.arch }} build
+  #       run: |
+  #         export PATH=${{ env.ANDROID_NDK_BIN }}:$PATH
+  #         make -j profile-build EXE=$EXE WINE_PATH=$EMU
+  #         make strip EXE=$EXE
+  #         cp $EXE ../
 
-      # Artifacts automatically get zipped.
-      # To avoid double-zipping, we use the unzipped directory
-      - uses: actions/upload-artifact@v4
-        with:	
-          name: Pikafish-Android-${{ matrix.arch }}
-          path: |
-            ${{ env.EXE }}
-            AUTHORS
-            CONTRIBUTING.md
-            Copying.txt
-            README.md
-            Top CPU Contributors.txt
+      # # Artifacts automatically get zipped.
+      # # To avoid double-zipping, we use the unzipped directory
+      # - uses: actions/upload-artifact@v4
+      #   with:	
+      #     name: Pikafish-Android-${{ matrix.arch }}
+      #     path: |
+      #       ${{ env.EXE }}
+      #       AUTHORS
+      #       CONTRIBUTING.md
+      #       Copying.txt
+      #       README.md
+      #       Top CPU Contributors.txt
